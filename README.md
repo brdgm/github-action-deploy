@@ -19,10 +19,11 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: Production
-      url: "https://brdgm.me/${{ steps.package_json.outputs.appDeployName }}"
+      url: "https://brdgm.me/${{ steps.deploy.outputs.app-deploy-name }}"
 
     steps:
       - uses: brdgm/github-action-deploy@v1
+        id: deploy
         with:
           gh-site-deploy-pat: ${{ secrets.GH_SITE_DEPLOY_PAT }}
           gh-site-deploy-username: ${{ secrets.GH_SITE_DEPLOY_USERNAME }}
