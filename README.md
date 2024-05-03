@@ -17,6 +17,9 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: Production
+      url: "https://brdgm.me/${{ steps.package_json.outputs.appDeployName }}"
 
     steps:
       - uses: brdgm/github-action-deploy@v1
