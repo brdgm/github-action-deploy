@@ -1,0 +1,57 @@
+name: Build
+description: Composite GitHub Action to build a brdgm.me application.
+
+inputs:
+  gh-site-deploy-pat:
+    description: GH_SITE_DEPLOY_PAT secret
+    required: true
+  gh-site-deploy-username:
+    description: GH_SITE_DEPLOY_USERNAME secret
+    required: true
+  gh-site-deploy-email:
+    description: GH_SITE_DEPLOY_EMAIL secret
+    required: true
+  gh-site-deploy-name:
+    description: GH_SITE_DEPLOY_NAME secret
+    required: true
+
+runs:
+  using: composite
+
+  steps:
+    - uses: actions/checkout@v4
+
+    - name: Read properties from package.json
+      id: package_json
+      uses: zoexx/github-action-json-file-properties@1.0.6
+      with:
+        file_path: package.json
+
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: npm
+
+    - run: npm ci
+      shell: bash
+
+    - run: npm run test:unit
+      shell: bash
+
+    - run: npm run build
+      shell: bash
+
+    - name: Copy to Site
+      uses: cpina/github-action-push-to-another-repository@v1.7.2
+      env:
+        API_TOKEN_GITHUB: ${{ inputs.gh-site-deploy-pat }}
+      with:
+        source-directory: dist
+        destination-repository-username: brdgm
+        destination-repository-name: brdgm.github.io
+        destination-github-username: ${{ inputs.gh-site-deploy-username }}
+        user-email: ${{ inputs.gh-site-deploy-email }}
+        user-name: ${{ inputs.gh-site-deploy-name }}
+        target-branch: main
+        commit-message: deploy ${{ steps.package_json.outputs.appDeployName }} ${{ steps.package_json.outputs.version }}
+        target-directory: ${{ steps.package_json.outputs.appDeployName }}
