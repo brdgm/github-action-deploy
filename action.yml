@@ -30,7 +30,7 @@ runs:
   using: composite
 
   steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
 
     - name: Read properties from package.json
       id: package_json
